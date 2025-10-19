@@ -1,0 +1,25 @@
+[
+    {
+      "target_class": "models.todo:TodoModel",
+      "data": [
+        {
+            "id": "1",
+            "content": "ミルクを買う",
+            "completed": false,
+            "deadline": null
+        },
+        {
+            "id": "2",
+            "content": "宿題をする",
+            "completed": false,
+            "deadline": null
+        },
+        {
+            "id": "3",
+            "content": "借りた本を返す",
+            "completed": false,
+            "deadline": null
+        }
+      ]
+    }
+]

@@ -1,0 +1,21 @@
+{
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+  "[python]":{
+    "gitlens.codeLens.symbolScopes": [
+      "!Module"
+    ],
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    },
+    "editor.formatOnPaste": false,
+    "editor.defaultFormatter": "ms-python.black-formatter",
+  },
+  "isort.args":["--profile", "black"],
+  "python.analysis.extraPaths": [
+    "/home/codeserver/.asdf/installs/python/3.11.5/lib/python3.11/site-packages",
+    "${workspaceFolder}/src",
+  ],
+  "autoDocstring.docstringFormat": "google"
+  }

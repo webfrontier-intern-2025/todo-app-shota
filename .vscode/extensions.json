@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "ms-python.python",
+        "ms-python.black-formatter",
+        "ms-python.flake8",
+        "cweijan.vscode-mysql-client2",
+        "vasubasraj.flashpost"
+    ]
+}

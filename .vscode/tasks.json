@@ -1,0 +1,86 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "サーバー起動(デバッグ)",
+      "type": "shell",
+      "isBackground": true,
+      "command": "export PYTHONPATH=${workspaceFolder}/src:$PYTHONPATH && export PYDEVD_DISABLE_FILE_VALIDATION=1 && /home/coder/.asdf/shims/python -m debugpy --listen localhost:5678 --wait-for-client -m uvicorn app.main:app --reload",
+
+      // This task is run before some debug tasks.
+      // Problem is, it's a watch script, and since it never exits, VSCode
+      // complains. All this is needed so VSCode just lets it run.
+      "problemMatcher": [
+        {
+          "pattern": [
+            {
+              "regexp": ".",
+              "file": 1,
+              "location": 2,
+              "message": 3
+            }
+          ],
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": ".",
+            "endsPattern": ".",
+          }
+        }
+      ]
+    },
+    {
+      "label": "サーバー起動",
+      "type": "shell",
+      "isBackground": true,
+      "command": "export PYTHONPATH=${workspaceFolder}/src:$PYTHONPATH && export PYDEVD_DISABLE_FILE_VALIDATION=1 && /home/coder/.asdf/shims/python -m uvicorn app.main:app",
+
+      // This task is run before some debug tasks.
+      // Problem is, it's a watch script, and since it never exits, VSCode
+      // complains. All this is needed so VSCode just lets it run.
+      "problemMatcher": [
+        {
+          "pattern": [
+            {
+              "regexp": ".",
+              "file": 1,
+              "location": 2,
+              "message": 3
+            }
+          ],
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": ".",
+            "endsPattern": ".",
+          }
+        }
+      ]
+    },
+    {
+      "label": "データシーディング",
+      "type": "shell",
+      "isBackground": true,
+      "command": "export PYTHONPATH=${workspaceFolder}/src:$PYTHONPATH && /home/coder/.asdf/shims/python -m seed.seeder 19a7e79e655b",
+
+      "problemMatcher": [
+        {
+          "pattern": [
+            {
+              "regexp": ".",
+              "file": 1,
+              "location": 2,
+              "message": 3
+            }
+          ],
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": ".",
+            "endsPattern": ".",
+          }
+        }
+      ]
+    },
+  ]
+}
+  
