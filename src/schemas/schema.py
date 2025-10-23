@@ -19,3 +19,19 @@ class CreateTodoSchema(TodoSchemaBase):
 class UpdateTodoSchema(TodoSchemaBase):
     content: str | None = None
 
+class TagSchemaBase(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+class TagSchema(TagSchemaBase):
+    id: int
+    name: str
+    created_at: datetime
+    updated_at: datetime
+
+class CreateTagSchema(TagSchemaBase):
+    name: str
+
+class UpdateTagSchema(TagSchemaBase):
+    name: str | None = None
+
+
