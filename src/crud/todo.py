@@ -65,14 +65,14 @@ def add_tag_to_todo(db: Session, todo: TodoModel, tag: Tag) -> Optional[TodoMode
     """
 
     # 1. 紐付け対象のTodoを取得 (この時点では tags は不要)
-    todo = db.query(TodoModel).filter(TodoModel.id == todo_id).first()
-    if not todo:
-        return None  # Todoが見つからない
+    # todo = db.query(TodoModel).filter(TodoModel.id == todo_id).first()
+    # if not todo:
+    # return None  # Todoが見つからない
 
     # 2. 紐付けたいTagを取得
-    tag = db.query(Tag).filter(Tag.id == tag_id).first()
-    if not tag:
-        return None  # Tagが見つからない
+    # tag = db.query(Tag).filter(Tag.id == tag_id).first()
+    # if not tag:
+    # return None  # Tagが見つからない
 
     # 3. すでに紐付いていないか確認 (効率化のため)
     if tag not in todo.tags:
@@ -87,4 +87,4 @@ def add_tag_to_todo(db: Session, todo: TodoModel, tag: Tag) -> Optional[TodoMode
 
     # 6. 関連Tagが読み込まれた最新のTodoを返す
     #    (get_by_id を再利用するのが最も安全で確実です)
-    return get_by_id(db, todo_id)
+    return get_by_id(db, todo.id)
