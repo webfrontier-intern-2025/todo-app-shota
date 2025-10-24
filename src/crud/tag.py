@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from models.tag import Tag
 from schemas.schema import CreateTagSchema, UpdateTagSchema
@@ -8,16 +8,28 @@ def create(db: Session, create_tag_schema: CreateTagSchema) -> Tag:
     tag_model = Tag(**create_tag_schema.model_dump(exclude_unset=True))
     db.add(tag_model)
     db.commit()
-    db.refresh(tag_model)
-    return tag_model
+    # db.refresh(tag_model)
+    return get_by_id(db, tag_model.id)
 
 
 def get_by_id(db: Session, tag_id: int) -> Tag | None:
-    return db.query(Tag).filter(Tag.id == tag_id).first()
+    return (
+        db.query(Tag)
+        .options(joinedload(Tag.todos))
+        .filter(Tag.id == tag_id)
+        .first()
+    )
 
 
 def get(db: Session, skip: int = 0, limit: int = 100) -> list[Tag]:
-    return db.query(Tag).offset(skip).limit(limit).all()
+    return (
+        db.query(Tag)
+        .options(joinedload(Tag.todos))
+        .order_by(Tag.id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 def update(
@@ -32,8 +44,8 @@ def update(
         setattr(tag_model, key, value)
     db.add(tag_model)
     db.commit()
-    db.refresh(tag_model)
-    return tag_model
+    # db.refresh(tag_model)
+    return get_by_id(db, tag_model.id)
 
 
 def delete(db: Session, tag_model_id: int) -> int | None:

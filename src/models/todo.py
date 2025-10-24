@@ -1,11 +1,14 @@
-from datetime import datetime
+from datetime import datetime, date
+from typing import List, Optional
 
-from sqlalchemy import Boolean, DateTime, Integer, String
+from sqlalchemy import Boolean, Date, DateTime, Integer, String, TIMESTAMP
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
-from sqlalchemy.types import TIMESTAMP
+
 
 from app.database import Base
+
+from models.todo_tag import todo_tag_association_table
 
 
 class TodoModel(Base):
@@ -16,7 +19,7 @@ class TodoModel(Base):
     completed: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False, server_default="False"
     )
-    deadline: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    deadline: Mapped[Optional[DateTime]] = mapped_column(DateTime, nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), nullable=False, server_default=func.now()
@@ -27,4 +30,10 @@ class TodoModel(Base):
         nullable=False,
         server_default=func.now(),
         onupdate=func.now(),
+    )
+
+    tags: Mapped[List["Tag"]] = relationship(
+        "Tag",
+        secondary=todo_tag_association_table,
+        back_populates="todos"
     )
