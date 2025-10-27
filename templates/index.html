@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトルをJinja2変数で受け取る -->
+    <title>{{ page_title }}</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
+        h1 { color: #222; }
+        ul { list-style: none; padding: 0; }
+        li { 
+            background: #fff; 
+            margin: 0.5em 0; 
+            padding: 1em; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .content { display: flex; align-items: center; }
+        .tags { margin-left: 1em; }
+        .tag {
+            background: #007bff;
+            color: white;
+            padding: 0.25em 0.6em;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-left: 0.3em;
+        }
+        .completed { text-decoration: line-through; color: #aaa; }
+        .completed .tag { background-color: #aaa; }
+        .actions { font-size: 0.9em; }
+        .actions a { margin-left: 0.5em; text-decoration: none; }
+        .edit { color: #28a745; }
+        .delete { color: #dc3545; }
+        .new-todo-link { 
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 0.7em 1.2em;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-bottom: 1.5em;
+        }
+        .new-todo-link:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>{{ page_title }}</h1>
+
+    <a href="/todo/new" class="new-todo-link">新しいToDoを作成する</a>
+
+    <h2>ToDo一覧</h2>
+    <ul>
+        <!-- 
+          ★★★ 1. 外側のループ ★★★
+          FastAPIから渡された 'todos' リストをループ処理します。
+          ここで 'todo' という変数が定義されます。
+        -->
+        {% for todo in todos %}
+            <li class="{{ 'completed' if todo.completed else '' }}">
+                <div class="content">
+                    <!-- ToDoの内容を表示 -->
+                    <span>{{ todo.content }}</span>
+
+                    <span class="tags">
+                        <!-- 
+                          ★★★ 2. 内側のループ ★★★
+                          'todo' 変数を使い、関連する 'tags' リストをループ処理します。
+                          (エラーは、このブロックが外側のループの外にあったために発生しました)
+                        -->
+                        {% for tag in todo.tags %}
+                            <span class="tag">{{ tag.name }}</span>
+                        {% endfor %}
+                    </span>
+                </div>
+                
+                <div class="actions">
+                    <!-- (ここは後でJavaScriptで機能を実装します) -->
+                    <a href="#" class="edit">[編集]</a>
+                    <a href="#" class="delete">[削除]</a>
+                </div>
+            </li>
+        {% else %}
+            <!-- ループ対象の 'todos' が空だった場合に表示 -->
+            <li>まだToDoはありません。</li>
+        {% endfor %}
+        <!-- ★★★ ループ終了 ★D ★★★ -->
+    </ul>
+</body>
+</html>
+
