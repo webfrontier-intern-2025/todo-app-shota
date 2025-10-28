@@ -3,21 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- ページタイトルをJinja2変数で受け取る -->
+
     <title>{{ page_title }}</title>
     <style>
+        
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
         h1 { color: #222; }
         ul { list-style: none; padding: 0; }
-        li { 
-            background: #fff; 
-            margin: 0.5em 0; 
-            padding: 1em; 
-            border-radius: 8px; 
+        li {
+            background: #fff;
+            margin: 0.5em 0;
+            padding: 1em;
+            border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            display: flex;
+        }
+        .todo-main {
+            display: flex; 
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 0.8em;
         }
         .content { display: flex; align-items: center; }
         .tags { margin-left: 1em; }
@@ -31,11 +35,11 @@
         }
         .completed { text-decoration: line-through; color: #aaa; }
         .completed .tag { background-color: #aaa; }
-        .actions { font-size: 0.9em; }
-        .actions a { margin-left: 0.5em; text-decoration: none; }
+        .actions { font-size: 0.9em; white-space: nowrap; }
+        .actions a, .actions button { margin-left: 0.5em; text-decoration: none; vertical-align: middle; }
         .edit { color: #28a745; }
         .delete { color: #dc3545; }
-        .new-todo-link { 
+        .new-todo-link {
             display: inline-block;
             background-color: #007bff;
             color: white;
@@ -46,6 +50,49 @@
             margin-bottom: 1.5em;
         }
         .new-todo-link:hover { background-color: #0056b3; }
+
+        .add-tag-form {
+            display: flex;
+            align-items: center;
+            gap: 0.5em; 
+            margin-top: 0.8em;
+            padding-top: 0.8em;
+            border-top: 1px solid #eee;
+        }
+        .add-tag-form label { font-size: 0.9em; margin-right: 0.3em;}
+        .add-tag-form select {
+            padding: 0.4em;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .add-tag-form button {
+            background-color: #28a745;
+            color: white;
+            padding: 0.4em 0.8em;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        .add-tag-form button:hover { background-color: #218838; }
+        .tag .remove-tag-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-left: 0.3em;
+            padding: 0 0.2em;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .tag .remove-tag-btn:hover {
+            opacity: 1;
+        }
+
+        
+
     </style>
 </head>
 <body>
@@ -53,43 +100,240 @@
 
     <a href="/todo/new" class="new-todo-link">新しいToDoを作成する</a>
 
-    <h2>ToDo一覧</h2>
-    <ul>
-        <!-- 
-          ★★★ 1. 外側のループ ★★★
-          FastAPIから渡された 'todos' リストをループ処理します。
-          ここで 'todo' という変数が定義されます。
-        -->
-        {% for todo in todos %}
-            <li class="{{ 'completed' if todo.completed else '' }}">
-                <div class="content">
-                    <!-- ToDoの内容を表示 -->
-                    <span>{{ todo.content }}</span>
+    <section id="create-tag-section">
+        <h3>新しいタグを作成</h3>
+        <form id="create-tag-form" onsubmit="createTag(event)">
+            <input type="text" id="new-tag-name" placeholder="新しいタグ名 (例: 緊急)" required>
+            <button type="submit">タグ作成</button>
+        </form>
+    </section>
 
-                    <span class="tags">
-                        <!-- 
-                          ★★★ 2. 内側のループ ★★★
-                          'todo' 変数を使い、関連する 'tags' リストをループ処理します。
-                          (エラーは、このブロックが外側のループの外にあったために発生しました)
-                        -->
-                        {% for tag in todo.tags %}
-                            <span class="tag">{{ tag.name }}</span>
-                        {% endfor %}
-                    </span>
+    <h2>ToDo一覧</h2>
+    <ul id="todo-list">
+        {% for todo in todos %}
+            <li class="{{ 'completed' if todo.completed else '' }}" data-todo-id="{{ todo.id }}">
+                <div class="todo-main">
+                    <div class="content">
+                        <span>{{ todo.content }}</span>
+                        <span class="tags">
+                            {% for tag in todo.tags %}
+                                <span class="tag">
+                                    {{ tag.name }}
+                                    <button class="remove-tag-btn" onclick="removeTag(event, {{ todo.id }}, {{ tag.id }})">[X]</button>
+                                </span>
+                            {% endfor %}
+                        </span>
+                    </div>
+                    <div class="actions">
+                        <a href="/todo/{{ todo.id }}/edit" class="edit">[編集]</a>
+                        <a href="#" class="delete" onclick="deleteTodo(event, {{ todo.id }})">[削除]</a>
+                    </div>
                 </div>
-                
-                <div class="actions">
-                    <!-- (ここは後でJavaScriptで機能を実装します) -->
-                    <a href="#" class="edit">[編集]</a>
-                    <a href="#" class="delete">[削除]</a>
+
+                <div class="add-tag-form">
+                    <label for="tag-select-{{ todo.id }}">タグ追加:</label>
+                    <select id="tag-select-{{ todo.id }}" name="tag_id">
+                        <option value="">-- タグを選択 --</option>
+                    </select>
+                    <button onclick="addTag({{ todo.id }})">追加</button>
                 </div>
+
             </li>
         {% else %}
-            <!-- ループ対象の 'todos' が空だった場合に表示 -->
             <li>まだToDoはありません。</li>
         {% endfor %}
-        <!-- ★★★ ループ終了 ★D ★★★ -->
     </ul>
+
+    <script>
+        let availableTags = [];
+
+        async function loadTags() {
+            try {
+                const response = await fetch('/v1/tag/');
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch tags: ${response.statusText}`);
+                }
+                availableTags = await response.json();
+                console.log('Available tags loaded:', availableTags);
+                populateTagDropdowns();
+            } catch (error) {
+                console.error('Error loading tags:', error);
+                alert('タグ一覧の読み込みに失敗しました。');
+            }
+        }
+
+        function populateTagDropdowns() {
+            const selects = document.querySelectorAll('select[name="tag_id"]');
+
+            selects.forEach(select => {
+                while (select.options.length > 1) {
+                    select.remove(1);
+                }
+
+                availableTags.forEach(tag => {
+                    const option = document.createElement('option');
+                    option.value = tag.id;
+                    option.textContent = tag.name;
+                    select.appendChild(option);
+                });
+            });
+        }
+
+        async function addTag(todoId) {
+            const selectElement = document.getElementById(`tag-select-${todoId}`);
+            const tagId = selectElement.value;
+
+            if (!tagId) {
+                alert('追加するタグを選択してください。');
+                return;
+            }
+
+            console.log(`Adding tag ${tagId} to todo ${todoId}`);
+
+            try {
+                const response = await fetch(`/v1/todo/${todoId}/tags/${tagId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('Error adding tag:', errorData);
+                    alert(`タグの追加に失敗しました: ${errorData.detail || response.statusText}`);
+                } else {
+                    const updatedTodo = await response.json();
+                    console.log('Tag added:', updatedTodo);
+                    alert('タグが追加されました！');
+
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('Network or other error:', error);
+                alert('タグの追加中にエラーが発生しました。');
+            }
+        }
+
+        async function deleteTodo(event, todoId) {
+            event.preventDefault();
+
+            console.log(`Deleting todo ${todoId}`);
+
+            try {
+                const response = await fetch(`/v1/todo/${todoId}`, {
+                    method: 'DELETE',
+                });
+
+                if (!response.ok) {
+                    let errorDetail = response.statusText;
+                    try {
+                        const errorData = await response.json();
+                        errorDetail = errorData.detail || errorDetail;
+                    } catch (e) {
+                         console.warn("Could not parse error response as JSON");
+                    }
+                    console.error('Error deleting todo:', errorDetail);
+                    alert(`ToDoの削除に失敗しました: ${errorDetail}`);
+                } else {
+                    console.log('Todo deleted successfully');
+                    alert('ToDoが削除されました!');
+
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('Network or other error:', error);
+                alert('ToDoの削除中にエラーが発生しました。');
+            }
+        }
+
+        async function createTag(event) {
+            event.preventDefault();
+            const tagNameInput = document.getElementById('new-tag-name');
+            const tagName = tagNameInput.value.trim();
+
+            if (!tagName) {
+                alert('タグ名を入力してください。');
+                return;
+            }
+
+            console.log(`Creating new tag: ${tagName}`);
+
+            try {
+                const response = await fetch('/v1/tag/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name: tagName }),
+                });
+
+                if (!response.ok) {
+                    let errorDetail = response.statusText;
+                    try {
+                        const errorData = await response.json();
+                        if (errorData.detail) {
+                            if (response.status === 400 && errorData.detail.includes("already exists")) {
+                                errorDetail = `タグ名「${tagName}」は既に使用されています。`;
+                            } else {
+                                errorDetail = errorData.detail;
+                            }
+                        }
+                    } catch (e) { console.warn("Could not parse error response as JSON"); }
+                    console.error('Error creating tag:', errorDetail);
+                    alert(`タグの作成に失敗しました: ${errorDetail}`);
+                } else {
+                    const newTag = await response.json();
+                    console.log('Tag created:', newTag);
+                    alert(`タグ「${newTag.name}」が作成されました！`);
+
+                    tagNameInput.value = '';
+                    availableTags.push(newTag);
+                    populateTagDropdowns();
+                }
+            } catch (error) {
+                console.error('Network or other error:', error);
+                alert('タグの作成中にエラーが発生しました。');
+            }
+        }
+
+
+         async function removeTag(event, todoId, tagId) {
+            event.preventDefault();
+
+            console.log(`Removing tag ${tagId} from todo ${todoId}`);
+
+
+
+            try {
+                const response = await fetch(`/v1/todo/${todoId}/tags/${tagId}`, {
+                    method: 'DELETE',
+                });
+
+                if (!response.ok) {
+                     let errorDetail = response.statusText;
+                    try {
+                        const errorData = await response.json();
+                        errorDetail = errorData.detail || errorDetail;
+                    } catch (e) { console.warn("Could not parse error response as JSON"); }
+                    console.error('Error removing tag:', errorDetail);
+                    alert(`タグの削除に失敗しました: ${errorDetail}`);
+                } else {
+                    console.log('Tag removed successfully');
+                    alert('タグが削除されました！');
+
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('Network or other error:', error);
+                alert('タグの削除中にエラーが発生しました。');
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', loadTags);
+
+    </script>
 </body>
 </html>
 

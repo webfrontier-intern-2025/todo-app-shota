@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from app import database
 from crud import todo, tag
-from schemas.schema import CreateTodoSchema, TodoSchema, UpdateTodoSchema
+from schemas.schema import CreateTodoSchema, TodoSchema, UpdateTodoSchema, TagSchema
 
 router = APIRouter()
 
@@ -33,14 +33,14 @@ def create(todo_schema: CreateTodoSchema, db: Session = Depends(database.get_db)
     return TodoSchema.model_validate(todo_model)
 
 
-@router.put("/{todo_id}")
+@router.put("/{todo_id}", response_model=TodoSchema)
 def update(
     todo_id: int, todo_schema: UpdateTodoSchema, db: Session = Depends(database.get_db)
 ):
     todo_model = todo.update(db, todo_id, todo_schema)
     if not todo_model:
         raise HTTPException(status_code=404, detail="Todo not found")
-    return Response(status_code=status.HTTP_200_OK)
+    return todo_model
 
 
 @router.delete("/{todo_id}")
@@ -51,33 +51,42 @@ def delete(todo_id: int, db: Session = Depends(database.get_db)):
 
 @router.post(
     "/{todo_id}/tags/{tag_id}",
-    response_model=TodoSchema, # ★ 既存の `TodoSchema` に合わせました
+    response_model=TodoSchema,
     summary="ToDoにタグを紐付ける",
     description="指定されたtodo_idのToDoに、指定されたtag_idのタグを紐付けます。",
 )
+
+@router.delete("/{todo_id}/tags/{tag_id}", response_model=TodoSchema)
+def remove_tag_from_todo_endpoint(
+    todo_id: int,
+    tag_id: int,
+    db: Session = Depends(database.get_db),
+):
+    updated_todo = todo.remove_tag_from_todo(db=db, todo_id=todo_id, tag_id=tag_id)
+    if updated_todo is None:
+        raise HTTPException(status_code=404, detail="TodoまたはTagが見つかりません")
+    
+    return updated_todo
+
+
+
 def add_tag_to_todo_endpoint(
     todo_id: int,
     tag_id: int,
-    db: Session = Depends(database.get_db), # ★ 既存の `database.get_db` に合わせました
+    db: Session = Depends(database.get_db),
 ):
     """
     ToDoにタグを紐付けるためのAPIエンドポイント。
     """
     
-    # 1. まず、紐付け対象のTodoが存在するかを確認
     db_todo = todo.get_by_id(db, todo_id=todo_id)
     if db_todo is None:
         raise HTTPException(status_code=404, detail="Todo not found")
 
-    # 2. 次に、紐付けたいTagが存在するかを確認 (crud.tag を使う)
     db_tag = tag.get_by_id(db, tag_id=tag_id)
     if db_tag is None:
         raise HTTPException(status_code=404, detail="Tag not found")
 
-    # 3. crud の add_tag_to_todo 関数を呼び出す
     updated_todo = todo.add_tag_to_todo(db=db, todo=db_todo, tag=db_tag)
-    
-    # 4. 紐付けが完了した最新のTodoオブジェクトを返す
-    # (crud.add_tag_to_todo が get_by_id を呼び出して返しているので、
-    #  スキーマの from_attributes=True が有効なら、これで正しく変換されます)
+
     return updated_todo

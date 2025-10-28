@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from models.todo import TodoModel
 from models.tag import Tag
-from schemas.schema import CreateTodoSchema, UpdateTodoSchema
+from schemas.schema import CreateTodoSchema, UpdateTodoSchema, TagSchema
 
 
 def create(db: Session, create_todo_schema: CreateTodoSchema) -> TodoModel:
@@ -59,32 +59,53 @@ def delete(db: Session, todo_model_id: int) -> int | None:
     return todo_model_id
 
 
+def remove_tag_from_todo(db: Session, todo_id: int, tag_id: int) -> Optional[TodoModel]:
+    """
+    指定されたToDoから指定されたTagの紐付けを解除する。
+    中間テーブル (todo_tags) から対応する行を削除する。
+
+    Args:
+        db (Session): SQLAlchemyデータベースセッション。
+        todo_id (int): 対象となるToDoのID。
+        tag_id (int): 削除するTagのID。
+
+    Returns:
+        Optional[TodoModel]: 更新後のToDoオブジェクト。ToDoまたはTagが見つからない場合はNone。
+    """
+    todo_item = get_by_id(db, todo_id)
+    if not todo_item:
+        print(f"ToDo not found with id: {todo_id}")
+        return None
+
+  
+    tag_item = db.query(Tag).filter(Tag.id == tag_id).first()
+    if not tag_item:
+        print(f"Tag not found with id: {tag_id}")
+        return None
+
+    if tag_item in todo_item.tags:
+        print(f"Removing tag {tag_id} ({tag_item.name}) from todo {todo_id} ({todo_item.content})") # ログ出力
+        todo_item.tags.remove(tag_item)
+        db.add(todo_item) 
+        db.commit()      
+        print("Commit successful.")
+    else:
+        print(f"Tag {tag_id} ({tag_item.name}) is not associated with todo {todo_id} ({todo_item.content}). No action taken.")
+        pass
+
+    return get_by_id(db, todo_id)
+
+
 def add_tag_to_todo(db: Session, todo: TodoModel, tag: Tag) -> Optional[TodoModel]:
     """
     指定されたIDのTodoに、指定されたIDのTagを紐づけます。
     """
 
-    # 1. 紐付け対象のTodoを取得 (この時点では tags は不要)
-    # todo = db.query(TodoModel).filter(TodoModel.id == todo_id).first()
-    # if not todo:
-    # return None  # Todoが見つからない
-
-    # 2. 紐付けたいTagを取得
-    # tag = db.query(Tag).filter(Tag.id == tag_id).first()
-    # if not tag:
-    # return None  # Tagが見つからない
-
-    # 3. すでに紐付いていないか確認 (効率化のため)
     if tag not in todo.tags:
-        # 4. TodoのtagsリストにTagを追加する
-        #    (SQLAlchemyが中間テーブルへのINSERTを自動で行ってくれます)
         todo.tags.append(tag)
 
-        # 5. データベースセッションに追加してコミット
         db.add(todo)
         db.commit()
         # db.refresh(todo)
 
-    # 6. 関連Tagが読み込まれた最新のTodoを返す
-    #    (get_by_id を再利用するのが最も安全で確実です)
     return get_by_id(db, todo.id)
