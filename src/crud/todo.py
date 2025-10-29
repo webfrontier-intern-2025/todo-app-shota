@@ -1,3 +1,4 @@
+import logging
 from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 
@@ -59,6 +60,26 @@ def delete(db: Session, todo_model_id: int) -> int | None:
     return todo_model_id
 
 
+def add_tag_to_todo(db: Session, todo: TodoModel, tag: Tag) -> Optional[TodoModel]:
+    """
+    指定されたToDoにTagを紐づける
+    """
+    tag_ids_on_todo = [t.id for t in todo.tags]
+    # logging.info(f"Checking if tag {tag.id} is in todo {todo.id}'s tags: {tag_ids_on_todo}") # ← 削除
+
+    if tag.id not in tag_ids_on_todo:
+        # logging.info(f"★★★ ADDING TAG {tag.id} TO TODO {todo.id} ★★★") # ← 削除
+        todo.tags.append(tag)
+        db.add(todo)
+        db.commit()
+        # logging.info(f"★★★ COMMIT SUCCESSFUL for adding tag {tag.id} to todo {todo.id} ★★★") # ← 削除
+    # else: # elseブロック自体も不要なら削除して良い
+    # logging.warning(f"Tag {tag.id} ({tag.name}) is ALREADY associated with todo {todo.id} ({todo.content}). Skipping add.") # ← 削除
+
+    # 最終的に最新のTodoオブジェクトを返す
+    return get_by_id(db, todo.id)
+
+
 def remove_tag_from_todo(db: Session, todo_id: int, tag_id: int) -> Optional[TodoModel]:
     """
     指定されたToDoから指定されたTagの紐付けを解除する。
@@ -77,35 +98,23 @@ def remove_tag_from_todo(db: Session, todo_id: int, tag_id: int) -> Optional[Tod
         print(f"ToDo not found with id: {todo_id}")
         return None
 
-  
     tag_item = db.query(Tag).filter(Tag.id == tag_id).first()
     if not tag_item:
         print(f"Tag not found with id: {tag_id}")
         return None
 
     if tag_item in todo_item.tags:
-        print(f"Removing tag {tag_id} ({tag_item.name}) from todo {todo_id} ({todo_item.content})") # ログ出力
+        print(
+            f"Removing tag {tag_id} ({tag_item.name}) from todo {todo_id} ({todo_item.content})"
+        )  # ログ出力
         todo_item.tags.remove(tag_item)
-        db.add(todo_item) 
-        db.commit()      
+        db.add(todo_item)
+        db.commit()
         print("Commit successful.")
     else:
-        print(f"Tag {tag_id} ({tag_item.name}) is not associated with todo {todo_id} ({todo_item.content}). No action taken.")
+        print(
+            f"Tag {tag_id} ({tag_item.name}) is not associated with todo {todo_id} ({todo_item.content}). No action taken."
+        )
         pass
 
     return get_by_id(db, todo_id)
-
-
-def add_tag_to_todo(db: Session, todo: TodoModel, tag: Tag) -> Optional[TodoModel]:
-    """
-    指定されたIDのTodoに、指定されたIDのTagを紐づけます。
-    """
-
-    if tag not in todo.tags:
-        todo.tags.append(tag)
-
-        db.add(todo)
-        db.commit()
-        # db.refresh(todo)
-
-    return get_by_id(db, todo.id)

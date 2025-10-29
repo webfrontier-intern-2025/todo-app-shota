@@ -32,11 +32,6 @@ class TodoRead(TodoBase):
     )
 
 
-
-# --- 循環参照の解決 ---
-# 'TagRead' の完全な定義をインポートします
 from .tag import TagRead
 
-# 'TodoRead' スキーマが参照していた 'Tag' プレースホルダーを、
-# 'TagRead' の完全な定義で更新します。
 TodoRead.model_rebuild()
