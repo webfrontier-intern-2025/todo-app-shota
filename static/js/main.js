@@ -319,6 +319,63 @@ async function deleteTag(tagId, tagName) {
     }
 }
 
+
+/**
+ * [ToDo一覧ページ]
+ * ToDoの完了/未完了ステータスを切り替える (チェックボックス変更時)
+ * API: PUT /v1/todo/{todoId}
+ * @param {number} todoId - 対象のToDoのID
+ * @param {boolean} isCompleted - チェックボックスの新しい状態 (true:完了, false:未完了)
+ */
+async function toggleTodoStatus(todoId, isCompleted) {
+    console.log(`Toggling todo ${todoId} status to: ${isCompleted}`);
+
+    // 更新するデータを準備 (completed のみ)
+    const updateData = {
+        completed: isCompleted
+    };
+
+    try {
+        const response = await fetch(`/v1/todo/${todoId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updateData), // completed の情報だけを送る
+        });
+
+        if (!response.ok) {
+            let errorDetail = response.statusText;
+            try { const errorData = await response.json(); errorDetail = errorData.detail || errorDetail; } catch (e) {}
+            console.error('Error updating todo status:', errorDetail);
+            alert(`ToDoステータスの更新に失敗しました: ${errorDetail}`);
+            // エラーが発生した場合、チェックボックスの状態を元に戻す (任意)
+            const checkbox = document.getElementById(`todo-${todoId}`);
+            if (checkbox) checkbox.checked = !isCompleted;
+        } else {
+            const updatedTodo = await response.json();
+            console.log('Todo status updated:', updatedTodo);
+
+            // UIを更新 (ページリロードの代わりにクラスを付け替える)
+            const listItem = document.querySelector(`li[data-todo-id="${todoId}"]`);
+            if (listItem) {
+                if (isCompleted) {
+                    listItem.classList.add('completed');
+                } else {
+                    listItem.classList.remove('completed');
+                }
+            }
+            // (必要であれば、完了/未完了に応じて他のUI要素も更新)
+        }
+    } catch (error) {
+        console.error('Network or other error:', error);
+        alert('ToDoステータスの更新中にエラーが発生しました。');
+        // エラーが発生した場合、チェックボックスの状態を元に戻す (任意)
+         const checkbox = document.getElementById(`todo-${todoId}`);
+         if (checkbox) checkbox.checked = !isCompleted;
+    }
+}
+
 // ページのHTMLが読み込み終わったら、`loadTags` を実行してタグ一覧を取得する
 document.addEventListener('DOMContentLoaded', loadTags);
 

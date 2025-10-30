@@ -12,31 +12,49 @@
 <body>
     <h1>{{ page_title }}</h1>
 
-    <a href="/todo/new" class="new-todo-link">新しいToDoを作成する</a>
+    <!-- ★★★ レイアウト調整のためdivで囲む ★★★ -->
+    <div id="page-header">
+        <a href="/todo/new" class="new-todo-link">新しいTODOを作成する</a>
 
-    <div id="tag-management-container">
-        <section id="create-tag-section">
-            <h3>新しいタグを作成</h3>
+        <div id="tag-management-container">
+            <section id="create-tag-section">
+                <h2>新しいタグを作成</h2>
             <form onsubmit="createTag(event)" style="display: flex; gap: 0.5em;">
-                <input type="text" id="new-tag-name" placeholder="新しいタグ名(例: 仕事、勉強など)" required style="flex-grow: 1; padding: 0.5em; border: 1px solid #ddd; border-radius: 4px;">
+                <input type="text" id="new-tag-name" placeholder="タグ名(例: 仕事、勉強など)" required style="flex-grow: 1; padding: 0.5em; border: 1px solid #ddd; border-radius: 4px;">
                 <button type="submit" style="background-color: #28a745; color: white; padding: 0.5em 1em; border: none; border-radius: 4px; cursor: pointer;">作成</button>
             </form>
-        </section>
+            </section>
 
-        <section id="manage-tags-section">
-            <h3>既存のタグを管理</h3>
-            <ul id="tag-list">
-                <li>読み込み中...</li>
-            </ul>
-        </section>
+            <section id="manage-tags-section">
+                <h2>作成済みのタグ</h2>
+                <ul id="tag-list">
+                    <li>タグがありません。新しいタグを作成してください。</li>
+                </ul>
+            </section>
+        </div>
+    </div>
 
-    <h2>ToDo一覧</h2>
+    <h2>TODO一覧</h2>
     <ul id="todo-list">
         {% for todo in todos %}
             <li class="{{ 'completed' if todo.completed else '' }}" data-todo-id="{{ todo.id }}">
                 <div class="todo-main">
                     <div class="content">
+
+                        <input 
+                            type="checkbox" 
+                            class="todo-checkbox" 
+                            id="todo-{{ todo.id }}" 
+                            {% if todo.completed %}checked{% endif %} 
+                            onchange="toggleTodoStatus({{ todo.id }}, this.checked)">
+
+
                         <span>{{ todo.content }}</span>
+
+                        {% if todo.deadline %}
+                           <span class="deadline">(締切: {{ todo.deadline }})</span>
+                        {% endif %} 
+
                         <span class="tags">
                             {% for tag in todo.tags %}
                                 <span class="tag">

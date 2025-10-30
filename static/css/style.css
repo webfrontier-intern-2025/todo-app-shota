@@ -87,6 +87,7 @@
             flex-direction: column;
             gap: 1em;      /* フォームとリストの間に隙間を空ける */
             margin-bottom: 2em;
+            margin-top: 1.5em;
         }
         #create-tag-section,
         #manage-tags-section {
@@ -154,4 +155,17 @@
 
         footer a:hover {
             text-decoration: underline;
+        }
+
+        .deadline {
+            font-size: 0.85em; /* 文字サイズを少し小さく */
+            color: #666;      /* 文字色をグレーに */
+            margin-left: 0.8em; /* 左側のToDo内容との間に隙間を空ける */
+            white-space: nowrap; /* 日付が途中で折り返さないようにする */
+        }
+
+        input[type="checkbox"].todo-checkbox {
+            margin-right: 0.6em;
+            cursor: pointer;
+            transform: scale(1.1);
         }
