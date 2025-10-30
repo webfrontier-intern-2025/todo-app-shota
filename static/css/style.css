@@ -133,3 +133,25 @@
         #tag-list .delete-tag-btn:hover {
             opacity: 1;
         }
+
+        footer {
+            text-align: center;
+            margin-top: 3em;
+            padding-top: 1.5em;
+            border-top: 1px solid #ddd;
+            font-size: 0.9em;
+            color: #777;
+        }
+
+        footer p {
+            margin: 0.5em 0;
+        }
+
+        footer a {
+            color: #007bff;
+        text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }}</title>
+    <!-- 共通のCSSを読み込む -->
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+    <style>
+        /* このページ専用のスタイル */
+        .license-container {
+            max-width: 800px;
+            margin: 2em auto;
+            background: #fff;
+            padding: 2em;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5em;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 0.8em;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <div class="license-container">
+        <h1>{{ page_title }}</h1>
+        <p>本アプリケーションは、以下のオープンソースソフトウェア（OSS）ライブラリを利用して開発されています。</p>
+
+        <h2>主要ライブラリ一覧</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ライブラリ名</th>
+                    <th>ライセンス</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>FastAPI</strong></td>
+                    <td>MIT License</td>
+                </tr>
+                <tr>
+                    <td><strong>Uvicorn</strong></td>
+                    <td>BSD 3-Clause License</td>
+                </tr>
+                <tr>
+                    <td><strong>SQLAlchemy</strong></td>
+                    <td>MIT License</td>
+                </tr>
+                <tr>
+                    <td><strong>Alembic</strong></td>
+                    <td>MIT License</td>
+                </tr>
+                <tr>
+                    <td><strong>Jinja2</strong></td>
+                    <td>BSD 3-Clause License</td>
+                </tr>
+                <tr>
+                    <td><strong>Pydantic</strong></td>
+                    <td>MIT License</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>ライセンスの概要</h2>
+        <p>
+            本プロジェクトで採用している主要なライブラリは、すべて MITライセンス(https://opensource.org/license/mit) または BSD 3-Clause ライセンス ( https://opensource.org/license/bsd-3-clause)です。
+            これらはどちらも「寛容な（Permissive）ライセンス」であり、商用利用、改変、再配布が（著作権表示などを条件に）許可されています。
+        </p>
+        <p>各ライブラリの詳細なライセンス条文は、それぞれのプロジェクトのWebサイトをご参照ください。</p>
+        
+        <br>
+        <a href="/">トップページに戻る</a>
+    </div>
+</body>
+</html>

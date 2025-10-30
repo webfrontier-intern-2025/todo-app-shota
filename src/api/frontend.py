@@ -71,3 +71,14 @@ async def show_edit_todo_form(request: Request, todo_id: int, db: Session = Depe
             "todo": todo_item
         }
     )
+
+@router.get("/licenses", response_class=HTMLResponse)
+async def show_licenses_page(request: Request):
+
+    return templates.TemplateResponse(
+        "licenses.html",
+        {
+            "request": request,
+            "page_title": "ライセンスについて",
+        },
+    )
