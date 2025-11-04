@@ -1,7 +1,8 @@
-from datetime import datetime, date
+# dateのimportが不要だったため削除
+from datetime import datetime
 from typing import List, Optional
 
-from sqlalchemy import Boolean, Date, DateTime, Integer, String, TIMESTAMP
+from sqlalchemy import Boolean, DateTime, Integer, String, TIMESTAMP
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
@@ -15,7 +16,10 @@ class TodoModel(Base):
     __tablename__ = "todo"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    content: Mapped[str] = mapped_column(String(256), nullable=False)
+    # todo名の一意制約
+    content: Mapped[str] = mapped_column(
+        String(30), unique=True, index=True, nullable=False
+    )
     completed: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False, server_default="False"
     )
@@ -33,7 +37,5 @@ class TodoModel(Base):
     )
 
     tags: Mapped[List["Tag"]] = relationship(
-        "Tag",
-        secondary=todo_tag_association_table,
-        back_populates="todos"
+        "Tag", secondary=todo_tag_association_table, back_populates="todos"
     )

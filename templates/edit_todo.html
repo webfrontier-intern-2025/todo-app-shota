@@ -104,11 +104,11 @@
                 if (!response.ok) {
                     const errorData = await response.json();
                     console.error('Error updating todo:', errorData);
-                    alert(`ToDoの更新に失敗しました: ${errorData.detail || response.statusText}`);
+                    alert(`todoが更新できませんでした。: ${errorData.detail || response.statusText}`);
                 } else {
                     const updatedTodo = await response.json();
                     console.log('Todo updated:', updatedTodo);
-                    alert('ToDoが更新されました！');
+                    alert('ToDoが更新されました!');
                     
                     window.location.href = '/'; 
                 }

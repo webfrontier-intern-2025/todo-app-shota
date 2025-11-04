@@ -41,7 +41,7 @@
         <div>
             <label for="content">内容:</label>
  
-            <input type="text" id="content" name="content" placeholder="例: 牛乳を買う" required>
+            <input type="text" id="content" name="content" placeholder="例: 読書をする" required>
         </div>
         
         <div>
@@ -88,11 +88,11 @@
                 if (!response.ok) {
                     const errorData = await response.json();
                     console.error('Error creating todo:', errorData);
-                    alert(`ToDoの作成に失敗しました: ${errorData.detail || response.statusText}`);
+                    alert(`todoが作成できませんでした。: ${errorData.detail || response.statusText}`);
                 } else {
                     const createdTodo = await response.json();
                     console.log('Todo created:', createdTodo);
-                    alert('ToDoが作成されました！');
+                    alert('ToDoが作成されました!');
                     
                     form.reset(); 
 

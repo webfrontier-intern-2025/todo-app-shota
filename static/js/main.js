@@ -120,7 +120,7 @@ async function addTag(todoId) {
         if (!response.ok) {
             const errorData = await response.json();
             console.error('Error adding tag:', errorData);
-            alert(`タグの追加に失敗しました: ${errorData.detail || response.statusText}`);
+            alert(`30字以内で入力してください。: ${errorData.detail || response.statusText}`);
         } else {
             const updatedTodo = await response.json();
             console.log('Tag added:', updatedTodo);
@@ -260,7 +260,7 @@ async function createTag(event) {
                 }
             } catch (e) { console.warn("Could not parse error response as JSON"); }
             console.error('Error creating tag:', errorDetail);
-            alert(`タグの作成に失敗しました: ${errorDetail}`);
+            alert(`タグが作成できませんでした。: ${errorDetail}`);
         } else {
             const newTag = await response.json();
             console.log('Tag created:', newTag);
