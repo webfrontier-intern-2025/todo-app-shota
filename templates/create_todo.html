@@ -1,9 +1,8 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ page_title }}</title>
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block styles %}
     <style>
         body { font-family: sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
         h1 { color: #222; }
@@ -32,15 +31,18 @@
         a { color: #007bff; text-decoration: none; margin-top: 1.5em; display: inline-block; }
         a:hover { text-decoration: underline; }
     </style>
-</head>
-<body>
+{% endblock %}
+
+{% block content %}
     <h1>{{ page_title }}</h1>
 
-
-    <form id="create-todo-form" action="#" method="post" onsubmit="createTodo(event)">
+    <!-- 
+      onsubmit="createTodo(event)" 属性を削除 
+      イベントリスナーは createTodoPage.js で登録します
+    -->
+    <form id="create-todo-form" action="#" method="post">
         <div>
             <label for="content">内容:</label>
- 
             <input type="text" id="content" name="content" placeholder="例: 読書をする" required>
         </div>
         
@@ -54,61 +56,14 @@
 
     <br>
     <a href="/">一覧に戻る</a>
-
-    <script>
-        async function createTodo(event) {
-            event.preventDefault(); 
-
-            const form = document.getElementById('create-todo-form');
-            const contentInput = document.getElementById('content');
-            const deadlineInput = document.getElementById('deadline');
-
-            const content = contentInput.value;
-            const deadline = deadlineInput.value || null; 
-
-            if (!content.trim()) {
-                alert('内容を入力してください。');
-                return;
-            }
-
-            const todoData = {
-                content: content,
-                deadline: deadline 
-            };
-
-            try {
-                const response = await fetch('/v1/todo/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(todoData),
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    console.error('Error creating todo:', errorData);
-                    alert(`todoが作成できませんでした。: ${errorData.detail || response.statusText}`);
-                } else {
-                    const createdTodo = await response.json();
-                    console.log('Todo created:', createdTodo);
-                    alert('ToDoが作成されました!');
-                    
-                    form.reset(); 
-
-                }
-            } catch (error) {
-                console.error('Network or other error:', error);
-                alert('ToDoの作成中にエラーが発生しました。');
-            }
-        }
-    </script>
-    <footer>
-    <p>&copy; 2025 HatakeyamashotaのToDoアプリ. All Rights Reserved.</p>
-    <p>
-        <a href="/licenses">ライセンスについて</a>
-    </p>
-</footer>
-</body>
-</html>
-
+{% endblock %}
+    <!-- 
+      インラインの <script> ブロックはすべて削除
+    -->
+{% block scripts %}
+    <!-- 
+      新しく作成した createTodoPage.js を 'type="module"' で読み込みます
+      (Jinja2 の url_for を使ってパスを解決)
+    -->
+    <script src="{{ url_for('static', path='/js/createTodoPage.js') }}" type="module"></script>
+{% endblock %}

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 
+      {% block title %} ... {% endblock %}
+      このブロックは、子テンプレート (create_todo.html など) が
+      独自のタイトルで上書きできるようにするためのものです。
+    -->
+    <title>{% block title %}ToDoアプリ{% endblock %}</title>
+    <style>
+        /* サイト全体の共通スタイル */
+        body { font-family: sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
+        h1 { color: #222; }
+        form { background: #fff; padding: 1.5em; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); max-width: 400px; }
+        div { margin-bottom: 1em; }
+        label { display: block; margin-bottom: 0.5em; font-weight: bold; }
+        
+        /* テキストと日付入力の共通スタイル */
+        input[type="text"], input[type="date"] { 
+            width: 100%; 
+            padding: 0.8em; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+            box-sizing: border-box; 
+            font-size: 1em;
+        }
+        
+        /* リンクの共通スタイル */
+        a { color: #007bff; text-decoration: none; margin-top: 1.5em; display: inline-block; }
+        a:hover { text-decoration: underline; }
+        
+        /* フッターの共通スタイル */
+        footer { 
+            margin-top: 2em; 
+            padding-top: 1em; 
+            border-top: 1px solid #eee; 
+            color: #777; 
+            font-size: 0.9em; 
+        }
+
+        /* {% block styles %} ... {% endblock %}
+          子テンプレートが独自のスタイルを追加で定義できるブロック
+        */
+        {% block styles %}
+        {% endblock %}
+    </style>
+</head>
+<body>
+    
+    <!-- 
+      {% block content %} ... {% endblock %}
+      子テンプレートがメインのHTMLコンテンツを挿入するブロック
+    -->
+    {% block content %}
+    {% endblock %}
+
+    <footer>
+        <p>&copy; 2025 HatakeyamashotaのToDoアプリ. All Rights Reserved.</p>
+        <p>
+            <a href="/licenses">ライセンスについて</a>
+        </p>
+    </footer>
+
+    <!-- 
+      {% block scripts %} ... {% endblock %}
+      子テンプレートが独自のJavaScriptファイルを読み込むブロック
+    -->
+    {% block scripts %}
+    {% endblock %}
+</body>
+</html>

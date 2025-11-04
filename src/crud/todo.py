@@ -1,4 +1,7 @@
 import logging
+
+from fastapi import HTTPException, status
+
 from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 
@@ -75,7 +78,11 @@ def add_tag_to_todo(db: Session, todo: TodoModel, tag: Tag) -> Optional[TodoMode
         # logging.info(f"★★★ COMMIT SUCCESSFUL for adding tag {tag.id} to todo {todo.id} ★★★") # ← 削除
     # else: # elseブロック自体も不要なら削除して良い
     # logging.warning(f"Tag {tag.id} ({tag.name}) is ALREADY associated with todo {todo.id} ({todo.content}). Skipping add.") # ← 削除
-
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="そのタグは既にこのtodoに追加されています。",
+        )
     # 最終的に最新のTodoオブジェクトを返す
     return get_by_id(db, todo.id)
 
